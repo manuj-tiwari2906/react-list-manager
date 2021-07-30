@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./App.css";
 import axios from "axios";
 import Lists from "./Lists";
@@ -8,11 +8,16 @@ const API = `https://run.mocky.io/v3/${API_KEY}`;
 
 function App() {
   const [lists, setList] = useState([]);
+  const [allContacts, setAllContacts] = useState([]);
 
-  const fetchData = async () => {
+  useEffect(  () => {
+     
+    
+   let fetchData = async  () => {
+
     const response = await axios.get(API);
-
     let unsortedLIst = response.data.data
+
     unsortedLIst.sort((a,b) => {
         if(a.name > b.name)
     return 1;
@@ -23,10 +28,15 @@ function App() {
     return 0;
     })
     setList(unsortedLIst);
-
-    // sortList(lists) 
+    setAllContacts([...unsortedLIst])
+   }
+   fetchData()
     
-  };
+  },[])
+  
+  
+  
+
 
   // const sortList =  (lists) => {
     
@@ -43,15 +53,15 @@ function App() {
 
   const searchClickHandler = (e) => {
     e.preventDefault();
-    fetchData();
+    
   }
 
   const filterContacts = (e) => {
     const inputValue = e.target.value
     const tempList = lists.filter((list) => {
-       return list.name.includes(inputValue)
+       return list.name.toLowerCase().includes(inputValue.toLowerCase())
     })
-    setList(tempList)
+    inputValue.length > 0 ?  setList(tempList) : setList(allContacts)
   }
 
   return (
@@ -61,7 +71,7 @@ function App() {
         <div className="col">
           <div className="card justify-content-center">
             <div className="row">
-            <form className="d-flex" onSubmit={fetchData}>
+            <form className="d-flex">
                   <input
                     className="form-control"
                     type="search"
